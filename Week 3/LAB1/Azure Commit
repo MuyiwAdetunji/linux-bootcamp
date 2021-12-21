@@ -1,0 +1,453 @@
+Install a LAMP stack on an Azure Linux VM
+
+muyiwa@Azure:~$ az group create --name skineticsResourceGroup --location eastus
+
+###Output
+
+{
+  "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "skineticsResourceGroup",
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "tags": null,
+  "type": "Microsoft.Resources/resourceGroups"
+}
+
+Create a Virtual Machine
+
+muyiwa@Azure:~$ az vm create --resource-group skineticsResourceGroup --name skineticsVM --image UbuntuLTS --admin-username skinetics --generate-ssh-keys
+
+###Output
+
+{
+  "fqdns": "",
+  "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Compute/virtualMachines/skineticsVM",
+  "location": "eastus",
+  "macAddress": "00-0D-3A-8B-F4-6F",
+  "powerState": "VM running",
+  "privateIpAddress": "10.0.0.4",
+  "publicIpAddress": "20.120.6.252",
+  "resourceGroup": "skineticsResourceGroup",
+  "zones": ""
+}
+ Open port 80 for web traffic
+ 
+muyiwa@Azure:~$ az vm open-port --port 80 --resource-group skineticsResourceGroup --name skineticsVM
+ 
+ ###Output
+ 
+{
+  "defaultSecurityRules": [
+    {
+      "access": "Allow",
+      "description": "Allow inbound traffic from all VMs in VNET",
+      "destinationAddressPrefix": "VirtualNetwork",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Inbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/AllowVnetInBound",
+      "name": "AllowVnetInBound",
+      "priority": 65000,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "VirtualNetwork",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    },
+    {
+      "access": "Allow",
+      "description": "Allow inbound traffic from azure load balancer",
+      "destinationAddressPrefix": "*",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Inbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/AllowAzureLoadBalancerInBound",
+      "name": "AllowAzureLoadBalancerInBound",
+      "priority": 65001,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "AzureLoadBalancer",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    },
+    {
+      "access": "Deny",
+      "description": "Deny all inbound traffic",
+      "destinationAddressPrefix": "*",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Inbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/DenyAllInBound",
+      "name": "DenyAllInBound",
+      "priority": 65500,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "*",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    },
+    {
+      "access": "Allow",
+      "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+      "destinationAddressPrefix": "VirtualNetwork",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Outbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/AllowVnetOutBound",
+      "name": "AllowVnetOutBound",
+      "priority": 65000,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "VirtualNetwork",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    },
+    {
+      "access": "Allow",
+      "description": "Allow outbound traffic from all VMs to Internet",
+      "destinationAddressPrefix": "Internet",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Outbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/AllowInternetOutBound",
+      "name": "AllowInternetOutBound",
+      "priority": 65001,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "*",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    },
+    {
+      "access": "Deny",
+      "description": "Deny all outbound traffic",
+      "destinationAddressPrefix": "*",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "*",
+      "destinationPortRanges": [],
+      "direction": "Outbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/defaultSecurityRules/DenyAllOutBound",
+      "name": "DenyAllOutBound",
+      "priority": 65500,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "*",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules"
+    }
+  ],
+  "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+  "flowLogs": null,
+  "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG",
+  "location": "eastus",
+  "name": "skineticsVMNSG",
+  "networkInterfaces": [
+    {
+      "dnsSettings": null,
+      "dscpConfiguration": null,
+      "enableAcceleratedNetworking": null,
+      "enableIpForwarding": null,
+      "etag": null,
+      "extendedLocation": null,
+      "hostedWorkloads": null,
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkInterfaces/skineticsVMVMNic",
+      "ipConfigurations": null,
+      "location": null,
+      "macAddress": null,
+      "migrationPhase": null,
+      "name": null,
+      "networkSecurityGroup": null,
+      "nicType": null,
+      "primary": null,
+      "privateEndpoint": null,
+      "privateLinkService": null,
+      "provisioningState": null,
+      "resourceGroup": "skineticsResourceGroup",
+      "resourceGuid": null,
+      "tags": null,
+      "tapConfigurations": null,
+      "type": null,
+      "virtualMachine": null,
+      "vnetEncryptionSupported": null,
+      "workloadType": null
+    }
+  ],
+  "provisioningState": "Succeeded",
+  "resourceGroup": "skineticsResourceGroup",
+  "resourceGuid": "85c75bb3-667d-4ba2-8b3d-91af3e8fe292",
+  "securityRules": [
+    {
+      "access": "Allow",
+      "description": null,
+      "destinationAddressPrefix": "*",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "22",
+      "destinationPortRanges": [],
+      "direction": "Inbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/securityRules/default-allow-ssh",
+      "name": "default-allow-ssh",
+      "priority": 1000,
+      "protocol": "Tcp",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "*",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules"
+    },
+    {
+      "access": "Allow",
+      "description": null,
+      "destinationAddressPrefix": "*",
+      "destinationAddressPrefixes": [],
+      "destinationApplicationSecurityGroups": null,
+      "destinationPortRange": "80",
+      "destinationPortRanges": [],
+      "direction": "Inbound",
+      "etag": "W/\"f6d8e649-d64c-443d-b68d-2144a0feda0e\"",
+      "id": "/subscriptions/d83f3218-7274-4344-9020-44061080a8df/resourceGroups/skineticsResourceGroup/providers/Microsoft.Network/networkSecurityGroups/skineticsVMNSG/securityRules/open-port-80",
+      "name": "open-port-80",
+      "priority": 900,
+      "protocol": "*",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "skineticsResourceGroup",
+      "sourceAddressPrefix": "*",
+      "sourceAddressPrefixes": [],
+      "sourceApplicationSecurityGroups": null,
+      "sourcePortRange": "*",
+      "sourcePortRanges": [],
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules"
+    }
+  ],
+  "subnets": null,
+  "tags": {},
+  "type": "Microsoft.Network/networkSecurityGroups"
+}
+
+SSH into your VM
+
+###Output
+
+ "20.120.6.252"
+
+
+  muyiwa@Azure:~$ ssh skinetics@20.120.6.252
+ 
+ ###Output
+ 
+ 
+The authenticity of host '20.120.6.252 (20.120.6.252)' can't be established.
+ECDSA key fingerprint is SHA256:oHdKNsxPgGIkd5R5PPkLihDUBg9EUia69p4QcO6fJHc.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '20.120.6.252' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 18.04.6 LTS (GNU/Linux 5.4.0-1064-azure x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Mon Dec 20 11:51:09 UTC 2021
+
+  System load:  0.1               Processes:           108
+  Usage of /:   4.7% of 28.90GB   Users logged in:     0
+  Memory usage: 5%                IP address for eth0: 10.0.0.4
+  Swap usage:   0%
+
+0 updates can be applied immediately.
+
+
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details. 
+ 
+ 
+ Verify and secure MySQL
+ 
+ skinetics@skineticsVM:~$ mysql -V
+ 
+ mysql  Ver 14.14 Distrib 5.7.36, for Linux (x86_64) using  EditLine wrapper
+ 
+ 
+skinetics@skineticsVM:~$ sudo mysql_secure_installation
+ 
+ 
+ ###Output
+ 
+ Securing the MySQL server deployment.
+
+Connecting to MySQL using a blank password.
+
+VALIDATE PASSWORD PLUGIN can be used to test passwords
+and improve security. It checks the strength of password
+and allows the users to set only those passwords which are
+secure enough. Would you like to setup VALIDATE PASSWORD plugin?
+
+Press y|Y for Yes, any other key for No: Y
+
+There are three levels of password validation policy:
+
+LOW    Length >= 8
+MEDIUM Length >= 8, numeric, mixed case, and special characters
+STRONG Length >= 8, numeric, mixed case, special characters and dictionary                  file
+
+Please enter 0 = LOW, 1 = MEDIUM and 2 = STRONG: 0
+Please set the password for root here.
+
+New password:
+
+Re-enter new password:
+
+Estimated strength of the password: 50
+Do you wish to continue with the password provided?(Press y|Y for Yes, any other key for No) : Y
+By default, a MySQL installation has an anonymous user,
+allowing anyone to log into MySQL without having to have
+a user account created for them. This is intended only for
+testing, and to make the installation go a bit smoother.
+You should remove them before moving into a production
+environment.
+
+Remove anonymous users? (Press y|Y for Yes, any other key for No) : f
+
+ ... skipping.
+
+
+Normally, root should only be allowed to connect from
+'localhost'. This ensures that someone cannot guess at
+the root password from the network.
+
+Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Y
+Success.
+
+By default, MySQL comes with a database named 'test' that
+anyone can access. This is also intended only for testing,
+and should be removed before moving into a production
+environment.
+
+
+Remove test database and access to it? (Press y|Y for Yes, any other key for No) : d
+
+ ... skipping.
+Reloading the privilege tables will ensure that all changes
+made so far will take effect immediately.
+
+Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
+Success.
+
+All done!
+ 
+ 
+ Try MySQL Features
+ 
+ skinetics@skineticsVM:~$ sudo mysql -u root -p
+ 
+ 
+ ###Output
+ 
+ 
+ Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 4
+Server version: 5.7.36-0ubuntu0.18.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+
+Verify PHP
+
+ 
+ skinetics@skineticsVM:~$ php -v
+ 
+ ###Output
+ 
+ PHP 7.2.24-0ubuntu0.18.04.10 (cli) (built: Oct 25 2021 17:47:59) ( NTS )
+Copyright (c) 1997-2018 The PHP Group
+Zend Engine v3.2.0, Copyright (c) 1998-2018 Zend Technologies
+    with Zend OPcache v7.2.24-0ubuntu0.18.04.10, Copyright (c) 1999-2018, by Zend Technologies
+    
+    
+    
+   Further PHP Test which creates PHP Info Page
+   
+   
+  skinetics@skineticsVM:~$ sudo sh -c 'echo "<?php phpinfo(); ?>" > /var/www/html/info.php'
+    
+    
+  Install WordPress
+  
+  skinetics@skineticsVM:~$ sudo apt install wordpress
+  
+  ###Output
+  
+  Configure Wordpress
+  
+  skinetics@skineticsVM:~$ sudo sensible-editor wordpress.sql
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
